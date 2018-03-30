@@ -3,6 +3,8 @@ package tvthread;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class Hospede extends Thread {
@@ -13,9 +15,10 @@ public class Hospede extends Thread {
     private int td; // tempo de descanso
 
     static int assistindo;
+    static int esperando;
     static Semaphore mutex = new Semaphore(1);
     static Semaphore tv = new Semaphore(1);
-    static Semaphore ttv = new Semaphore(1);
+    static Semaphore espere = new Semaphore(0);
     static int tvcanal = 0;
    
     Random escolha = new Random();
@@ -52,7 +55,6 @@ public class Hospede extends Thread {
     }
     
     public void assiste(){
-        
         try {
             mutex.acquire();
         } catch (InterruptedException ex) {}
@@ -71,9 +73,13 @@ public class Hospede extends Thread {
         try {
             mutex.acquire();
         } catch (InterruptedException ex) {}
-        assistindo -= 1;
         System.out.println("Hospede "+this.getid()+" foi descansar");
+        assistindo -= 1;
         if (assistindo == 0){
+            while(esperando>0){
+                esperando -= 1;
+                espere.release();
+            }
             tvcanal = 0;
             tv.release();
         }
@@ -84,11 +90,19 @@ public class Hospede extends Thread {
     public void run (){
         System.out.println("Hospede "+this.getid()+" diz: CHEGUEI!!!! CANAL= "+this.getcanal()+" TA="+this.getta()+" TD="+this.gettd());
         while(true){
+            if (assistindo == 0 || tvcanal == this.getcanal()){
             this.assiste();            
             this.doing(this.getta());        
             this.descansa();
             this.doing(this.gettd());
-            System.out.println("Hospede "+this.getid()+" diz: ACORDEI");           
+            System.out.println("Hospede "+this.getid()+" diz: ACORDEI");
+            }
+            else{
+                esperando += 1;
+                try {
+                    espere.acquire();
+                } catch (InterruptedException ex) {}
+            }
         }
     }
 
