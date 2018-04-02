@@ -17,6 +17,7 @@ public class Hospede extends Thread {
     static int assistindo;
     static int esperando;
     static Semaphore mutex = new Semaphore(1);
+    static Semaphore mutexespere = new Semaphore(1);
     static Semaphore tv = new Semaphore(1);
     static Semaphore espere = new Semaphore(0);
     static int tvcanal = 0;
@@ -76,12 +77,16 @@ public class Hospede extends Thread {
         System.out.println("Hospede "+this.getid()+" foi descansar");
         assistindo -= 1;
         if (assistindo == 0){
-            while(esperando>0){
-                esperando -= 1;
-                espere.release();
-            }
+            try {
+                mutexespere.acquire();
+            } catch (InterruptedException ex) {}
+            
+            
             tvcanal = 0;
             tv.release();
+            espere.release(esperando);
+            esperando = 0;
+            mutexespere.release();
         }
         mutex.release();
     }
@@ -90,7 +95,7 @@ public class Hospede extends Thread {
     public void run (){
         System.out.println("Hospede "+this.getid()+" diz: CHEGUEI!!!! CANAL= "+this.getcanal()+" TA="+this.getta()+" TD="+this.gettd());
         while(true){
-            if (assistindo == 0 || tvcanal == this.getcanal()){
+            if (tvcanal == 0 || tvcanal == this.getcanal()){
             this.assiste();            
             this.doing(this.getta());        
             this.descansa();
@@ -98,7 +103,11 @@ public class Hospede extends Thread {
             System.out.println("Hospede "+this.getid()+" diz: ACORDEI");
             }
             else{
+                try {
+                    mutexespere.acquire();
+                } catch (InterruptedException ex) {}
                 esperando += 1;
+                mutexespere.release();
                 try {
                     espere.acquire();
                 } catch (InterruptedException ex) {}
