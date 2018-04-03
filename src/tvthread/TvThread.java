@@ -1,11 +1,15 @@
 package tvthread;
 
+import Interface.Interface;
+
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 public class TvThread {
-    
+        static Interface janela;
+        
     public static void main(String[] args) {
+        TvThread.janela = new Interface();
         // TODO code application logic here
         int h = Integer.parseInt(JOptionPane.showInputDialog("Bem-vindo ao Hotel IDK!\nQual é o número de hópedes?"));
         int n = Integer.parseInt(JOptionPane.showInputDialog("Qual é a quantidade de canais?"));

@@ -64,6 +64,7 @@ public class Hospede extends Thread {
             try {
                 tv.acquire();  
                 tvcanal = this.getcanal();
+                TvThread.janela.setCanal(tvcanal);
             } catch (InterruptedException ex) {}
         }
         System.out.println("Hospede "+this.getid()+" assistindo TV");
@@ -80,9 +81,8 @@ public class Hospede extends Thread {
             try {
                 mutexespere.acquire();
             } catch (InterruptedException ex) {}
-            
-            
             tvcanal = 0;
+            TvThread.janela.setCanal(tvcanal);
             tv.release();
             espere.release(esperando);
             esperando = 0;
@@ -95,7 +95,7 @@ public class Hospede extends Thread {
     public void run (){
         System.out.println("Hospede "+this.getid()+" diz: CHEGUEI!!!! CANAL= "+this.getcanal()+" TA="+this.getta()+" TD="+this.gettd());
         while(true){
-            if (tvcanal == 0 || tvcanal == this.getcanal()){
+            if (assistindo == 0 || tvcanal == this.getcanal()){
             this.assiste();            
             this.doing(this.getta());        
             this.descansa();
