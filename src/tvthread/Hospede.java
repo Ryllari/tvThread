@@ -5,6 +5,7 @@ import java.util.concurrent.Semaphore;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLabel;
 
 
 public class Hospede extends Thread {
@@ -16,12 +17,16 @@ public class Hospede extends Thread {
 
     static int assistindo;
     static int esperando;
+    static Semaphore mutexpos = new Semaphore(1);
     static Semaphore mutex = new Semaphore(1);
     static Semaphore mutexespere = new Semaphore(1);
     static Semaphore tv = new Semaphore(1);
     static Semaphore espere = new Semaphore(0);
     static int tvcanal = 0;
-   
+    static int pos = 0;
+    
+    private JLabel lstatus = new JLabel("Iniciando");
+    
     Random escolha = new Random();
     
     // CONSTRUTOR
@@ -59,14 +64,17 @@ public class Hospede extends Thread {
         try {
             mutex.acquire();
         } catch (InterruptedException ex) {}
-        assistindo += 1;        
+        assistindo += 1;
         if (assistindo == 1){
             try {
                 tv.acquire();  
+            } catch (InterruptedException ex) {}
+            
                 tvcanal = this.getcanal();
                 TvThread.janela.setCanal(tvcanal);
-            } catch (InterruptedException ex) {}
         }
+                
+        lstatus.setText("Assistindo");
         System.out.println("Hospede "+this.getid()+" assistindo TV");
         mutex.release();        
     }
@@ -75,6 +83,7 @@ public class Hospede extends Thread {
         try {
             mutex.acquire();
         } catch (InterruptedException ex) {}
+        lstatus.setText("Descansando");
         System.out.println("Hospede "+this.getid()+" foi descansar");
         assistindo -= 1;
         if (assistindo == 0){
@@ -94,8 +103,14 @@ public class Hospede extends Thread {
     @Override
     public void run (){
         System.out.println("Hospede "+this.getid()+" diz: CHEGUEI!!!! CANAL= "+this.getcanal()+" TA="+this.getta()+" TD="+this.gettd());
+        try {
+            mutexpos.acquire();
+        } catch (InterruptedException ex) {}
+        TvThread.janela.addHospede(pos, this.getid(), this.getcanal(), lstatus, this.getta(), this.gettd());
+        pos += 100;
+        mutexpos.release();
         while(true){
-            if (assistindo == 0 || tvcanal == this.getcanal()){
+            if ((assistindo == 0 && tvcanal == 0) || tvcanal == this.getcanal()){
             this.assiste();            
             this.doing(this.getta());        
             this.descansa();
@@ -107,10 +122,8 @@ public class Hospede extends Thread {
                     mutexespere.acquire();
                 } catch (InterruptedException ex) {}
                 esperando += 1;
-                mutexespere.release();
-                try {
-                    espere.acquire();
-                } catch (InterruptedException ex) {}
+                lstatus.setText("Esperando");
+                mutexespere.release();    
             }
         }
     }

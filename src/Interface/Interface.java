@@ -16,19 +16,42 @@ public class Interface extends JFrame{
     
     public Interface() {
         initComponents();
-        editInterface();
-        editComponents();
+        editarInterface();
+        editarComponents();
     }
     
-    public void editComponents(){
+    public void editarComponents(){
         lback.setBounds(0, 0, 600, 600);
         ltv.setBounds(100, 100, 400, 400);
-        lcanal.setBounds(260, 230, 200, 200);
-        lcanal.setFont(new java.awt.Font("DejaVu Sans Condensed", 1, 200));
+        lcanal.setBounds(200, 230, 250, 200);
+        lcanal.setFont(new Font("DejaVu Sans Condensed", 1, 200));
         lcanal.setForeground(new java.awt.Color(255, 255, 255));
     }
     
-    public void editInterface() {
+    public void addHospede(int pos, int id, int canal, JLabel lstatus, int ta, int td){
+        JLabel linfo = new JLabel("Hospede "+id);
+        JLabel lcanal = new JLabel(" Canal :"+canal);
+        JLabel labelstat = new JLabel("Status: ");
+        JLabel lta = new JLabel("Tempo Assistindo: "+ta);
+        JLabel ltd = new JLabel("Tempo Descansando: "+td);
+
+    
+        linfo.setBounds(610, pos, 100, 20);
+        lcanal.setBounds(710, pos, 100, 20);
+        add(linfo);
+        add(lcanal);
+        labelstat.setBounds(610, pos+20, 100, 20);
+        lstatus.setBounds(710, pos+20, 100, 20);
+        add(labelstat);
+        add(lstatus);
+        lta.setBounds(610, pos+40, 200, 20);
+        ltd.setBounds(610, pos+60, 200, 20);        
+        add(lta);
+        add(ltd);
+        
+    }
+    
+    public void editarInterface() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(800, 500);
         setLocationRelativeTo(null);
