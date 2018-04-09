@@ -90,9 +90,11 @@ public class Hospede extends Thread {
             try {
                 mutexespere.acquire();
             } catch (InterruptedException ex) {}
+            
             tvcanal = 0;
             TvThread.janela.setCanal(tvcanal);
             tv.release();
+
             espere.release(esperando);
             esperando = 0;
             mutexespere.release();
@@ -122,8 +124,11 @@ public class Hospede extends Thread {
                     mutexespere.acquire();
                 } catch (InterruptedException ex) {}
                 esperando += 1;
+                mutexespere.release();
                 lstatus.setText("Esperando");
-                mutexespere.release();    
+                try {
+                    espere.acquire();
+                } catch (InterruptedException ex) {}
             }
         }
     }

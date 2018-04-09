@@ -18,6 +18,8 @@ public class Interface extends JFrame{
         initComponents();
         editarInterface();
         editarComponents();
+        revalidate();
+        repaint(); 
     }
     
     public void editarComponents(){
@@ -53,7 +55,7 @@ public class Interface extends JFrame{
     
     public void editarInterface() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(800, 500);
+        setSize(900, 600);
         setLocationRelativeTo(null);
         setLayout(null);
         setVisible(true);
